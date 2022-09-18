@@ -1,0 +1,3 @@
+Las librerías irán a la carpeta Lib cuando las instalemos.
+Nos metemos hasta Scripts y ahí hacemos .\activate para activar el
+environment.
