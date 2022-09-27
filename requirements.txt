@@ -1,4 +1,3 @@
 pandas
 GitPython
-
-pip install -r requirements.txt
+pwntools
