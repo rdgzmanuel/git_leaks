@@ -5,7 +5,7 @@ from git import Repo
 import re, signal, sys, time, pwn, pdb, os    # Librerías que no te hace falta instalar
 
 
-#iter commit lo metemos en una lista, le dicmos el max numerod e commit (todos) 
+#iter commit lo metemos en una lista, le dicmos el max numero de commit (todos) 
 def handler_signal(signal, frame):
     print("\n\n [!] Out ....... \n")
     sys.exit(1)
@@ -54,15 +54,17 @@ def transform(commits, length):
     print(f"\t100 %")
     print("Finished!")
 
+    return all_matches
+
+def load(all_matches):
     for matches in all_matches:
         for match in matches:
                 print(match)
 
-def load():
-    pass
 
 if __name__ == "__main__":
     REPO_DIR = "./skale/skale-manager"
     commits = extract(REPO_DIR)
     length = len(list(commits))
-    transform(extract(REPO_DIR), length)
+    all_matches = transform(extract(REPO_DIR), length)
+    load(all_matches)
