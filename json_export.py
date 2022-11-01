@@ -1,6 +1,7 @@
 #usr/bin/python
 
 from git import Repo
+import json
 import re, signal, sys, time, pwn, pdb, os    # Librerías que no te hace falta instalar
 
 
@@ -29,13 +30,32 @@ def transform(commits, length):
     count = 0
     index = int(count * 100 / length)
 
-    pattern = re.compile(r".{10}private[-.\s]keys.{10}", re.IGNORECASE)
+    patterns = [
+        re.compile(r".{6}private[-.\s]keys.{6}", re.IGNORECASE),
+        re.compile(r".{6}password.{6}", re.IGNORECASE),
+        re.compile(r".{6}confidential.{6}", re.IGNORECASE),
+        re.compile(r".{10}secret.{10}", re.IGNORECASE),
+    ]
+
+    words = [
+        "private keys",
+        "password",
+        "confidential",
+        "secret"
+    ]
+
+    results = {}
+    for word in words:
+        results[word] = []
 
     for commit in commits:
-        matches = pattern.finditer(commit.message)
-        for match in matches:
-            if match != None:
-                all_matches.append(match)
+        for i in range(len(patterns)):
+            word = words[i]
+            matches = patterns[i].finditer(commit.message)
+            for match in matches:
+                if match != None:
+                    results[word].append({"author": f"{commit.author}", "message": f"{commit.summary}", "authored_datetime": f"{commit.authored_datetime}"})
+                    all_matches.append(match)
         
         count += 1
         if index != int(count * 100 / length):
@@ -54,16 +74,23 @@ def transform(commits, length):
     print(f"\t100 %")
     print("Finished!")
 
-    return all_matches
+    return all_matches, results
 
 def load(all_matches):
     for match in all_matches:
         print(match)
+
+def load_json(results):
+    json_object = json.dumps(results, indent=4)
+    print(type(json_object))
+    with open("results.josn", "w") as file:
+        json.dump(results, file, indent=4)
 
 
 if __name__ == "__main__":
     REPO_DIR = "./skale/skale-manager"
     commits = extract(REPO_DIR)
     length = len(list(commits))
-    all_matches = transform(extract(REPO_DIR), length)
-    load(all_matches)
+    all_matches, results = transform(extract(REPO_DIR), length)
+    #load(all_matches)
+    load_json(results)
